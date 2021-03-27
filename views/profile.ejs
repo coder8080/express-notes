@@ -1,0 +1,26 @@
+<%- include('blocks/head.ejs', {title: 'your profile on express notes'}) %>
+<div class="container text-center">
+    <h1>Профиль пользователя <%= login %></h1>
+</div>
+<hr>
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <h4>
+                Ваши записи:
+            </h4>
+            <ul>
+                <% notes.forEach((note) => { %>
+                    <li>
+                        <h4>
+                            <a href="/note/<%= note.id %>">
+                                <%= note.heading %>
+                            </a>
+                        </h4>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    </div>
+</div>
+<%- include('blocks/footer.ejs') %>

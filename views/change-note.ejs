@@ -1,0 +1,21 @@
+<%- include('blocks/head.ejs', {title: 'Изменить запись ' + note.heading}) %>
+<div class="container text-center">
+    <h1>Изменить запись <%= note.heading %></h1>
+</div>
+<hr>
+<div class="container">
+    <form action="/change-note/<%= note.id %>" method="post">
+        <div class="form-group">
+            <label for="heading-input">Название</label>
+            <input id='heading-input' type="text" class="form-control" value="<%= note.heading %>" name="heading"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="text-input">Текст</label><br>
+            <textarea class="form-control" id="text-input" name="text" cols="30" rows="10"
+                      required><%= note.text %></textarea>
+        </div>
+        <input type="submit" value="Сохранить изменения" class="btn btn-outline-primary">
+    </form>
+</div>
+<%- include('blocks/footer.ejs') %>
