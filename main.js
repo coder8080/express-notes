@@ -42,6 +42,28 @@ app.post('/login', urlEncodedParser, ((req, res) => {
     operations.log(req, res)
 }))
 
+/* Страница регистрации */
+app.get('/reg', ((req, res) => {
+    if (req.session.logged) {
+        res.redirect('/')
+    }
+    else {
+        res.render('reg')
+    }
+}))
+
+/* Регистрация */
+app.post('/reg', urlEncodedParser, ((req, res) => {
+    operations.reg(req, res)
+}))
+
+/* Выход */
+app.get('/logout', ((req, res) => {
+    req.session.logged = false
+    req.session.login = ''
+    res.redirect('/')
+}))
+
 /* Профиль */
 app.get('/profile', ((req, res) => {
     if (req.session.logged) {

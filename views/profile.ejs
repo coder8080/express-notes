@@ -9,18 +9,23 @@
             <h4>
                 Ваши записи:
             </h4>
-            <ul>
-                <% notes.forEach((note) => { %>
-                    <li>
-                        <h4>
-                            <a href="/note/<%= note.id %>">
-                                <%= note.heading %>
-                            </a>
-                        </h4>
-                    </li>
-                <% }) %>
-                <a href="/create-note">Создать запись</a>
-            </ul>
+            <% if (are_notes) { %>
+                <ul>
+                    <% notes.forEach((note) => { %>
+                        <li>
+                            <h4>
+                                <a href="/note/<%= note.id %>">
+                                    <%= note.heading %>
+                                </a>
+                            </h4>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <h4>У вас ещё нет записей</h4>
+            <% } %>
+            <a href="/create-note">Создать запись</a><br>
+            <a href="/logout">Выйти</a>
         </div>
     </div>
 </div>
