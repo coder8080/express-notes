@@ -14,6 +14,12 @@ db.run('create table users (id integer primary key, login varchar(30), pass varc
         console.log('Не удалось создать таблицу в базе данных. Возникла ошибка:')
         throw err
     }
-    console.log('Таблица в базе данных успешно создана')
-    console.log('База данных готова к работе.')
+    db.run('create table notes (id integer primary key, heading text, text text, userId integer, foreign key(userId) references users(id));', (err) => {
+        if (err) {
+            console.log('Не удалось создать таблицу в базе данных. Возникла ошибка:')
+            throw err
+        }
+        console.log('Таблица в базе данных успешно создана')
+        console.log('База данных готова к работе.')
+    })
 })
