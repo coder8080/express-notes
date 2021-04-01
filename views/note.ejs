@@ -4,6 +4,7 @@
         background-image: url("/public/paper.jpg");
     }
 </style>
+<script src="/public/js/note_script.js"></script>
 <div class="container text-center">
     <h1>
         <%= note.heading %>
@@ -15,6 +16,9 @@
     </h4>
     <h4>
         <a href="/">На главную</a>
+    </h4>
+    <h4>
+        <a onclick="ask_for_remove()">Удалить</a>
     </h4>
     <h3>
         <%= note.text %>
@@ -28,4 +32,5 @@
         </h4>
     <% } %>
 </div>
+<input type="hidden" id="id-input" value="<%= note.id %>" name="id">
 <%- include('blocks/footer.ejs') %>

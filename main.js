@@ -10,12 +10,14 @@ const operations = require('./my_modules/user_operations')
 // Создание переменных
 const app = express()
 const db = new sqlite.Database('db.sqlite3')
-const urlEncodedParser = bodyParser.urlencoded({extended: false})
+let urlEncodedParser = bodyParser.urlencoded({extended: false})
 
 // Настройка
 app.set('view engine', 'ejs')
 app.use(express_session({secret: 'super_secret_key'}))
 app.use('/public', express.static('public'))
+app.use(bodyParser.json())
+app.use(urlEncodedParser)
 
 // Отслеживание url адресов
 
@@ -38,7 +40,7 @@ app.get('/login', ((req, res) => {
 }))
 
 /* Вход */
-app.post('/login', urlEncodedParser, ((req, res) => {
+app.post('/login', ((req, res) => {
     operations.log(req, res)
 }))
 
@@ -46,14 +48,13 @@ app.post('/login', urlEncodedParser, ((req, res) => {
 app.get('/reg', ((req, res) => {
     if (req.session.logged) {
         res.redirect('/')
-    }
-    else {
+    } else {
         res.render('reg')
     }
 }))
 
 /* Регистрация */
-app.post('/reg', urlEncodedParser, ((req, res) => {
+app.post('/reg', ((req, res) => {
     operations.reg(req, res)
 }))
 
@@ -73,7 +74,6 @@ app.get('/profile', ((req, res) => {
             }
             let notes_arr
             let are_notes
-            console.log(data)
             if (data) {
                 if (data[0]) {
                     are_notes = true
@@ -106,7 +106,6 @@ app.get('/note/:id', ((req, res) => {
                 if (data.login === req.session.login) {
                     // Получаем запись и отправляем её пользователю
                     db.get(`select * from notes where notes.id = '${req.params.id}';`, (err, data) => {
-                        console.log(data)
                         if (data) {
                             res.render('note', {note: data})
                         } else {
@@ -139,7 +138,6 @@ app.get('/change-note/:id', ((req, res) => {
                 if (data.login === req.session.login) {
                     // Получаем запись и отправляем её пользователю
                     db.get(`select * from notes where notes.id = '${req.params.id}';`, (err, data) => {
-                        console.log(data)
                         if (data) {
                             res.render('change-note', {note: data})
                         } else {
@@ -159,7 +157,8 @@ app.get('/change-note/:id', ((req, res) => {
     }
 }))
 
-app.post('/change-note/:id', urlEncodedParser, (req, res) => {
+/* Изменение записи */
+app.post('/change-note/:id', (req, res) => {
     if (req.session.logged) {
         // Получаем логин пользователя, которому принадлежит запись
         db.get(`select users.login from notes inner join users on notes.userId = users.id where notes.id = '${req.params.id}';`, (err, data) => {
@@ -209,6 +208,7 @@ app.post('/change-note/:id', urlEncodedParser, (req, res) => {
     }
 })
 
+/* Страница создания записи */
 app.get('/create-note', ((req, res) => {
     if (req.session.logged) {
         res.render('new-note')
@@ -217,19 +217,45 @@ app.get('/create-note', ((req, res) => {
     }
 }))
 
-app.post('/create-note', urlEncodedParser, (req, res) => {
+/* Создание записи */
+app.post('/create-note', (req, res) => {
     if (req.session.logged) {
         db.get(`select id from users where login = '${req.session.login}';`, (err, data) => {
             if (err) {
                 throw err
             }
             if (data) {
-                console.log()
                 db.run(`insert into notes (heading, text, userId) values ('${req.body.heading}', '${req.body.text}', ${data.id})`)
                 res.redirect('/')
-            }
-            else {
+            } else {
                 res.render('msg', {msg: 'Ошибка'})
+            }
+        })
+    } else {
+        res.redirect('/login')
+    }
+})
+
+/* Удаление записи (без страницы, так как запрос посылается с помощью fetch из страницы записи) */
+app.post('/drop-note', (req, res) => {
+    if (req.session.logged) {
+        db.get(`select users.login from notes inner join users on notes.userId = users.id where notes.id = ${req.body.id};`, (err, data) => {
+            if (err) {
+                res.status(400)
+                console.log(err)
+                res.end()
+                return
+            }
+            if (data.login === req.session.login) {
+                db.run(`delete from notes where id = ${req.body.id};`, (err) => {
+                    if (err) {
+                        throw err
+                    }
+                    res.status(200)
+                    res.end()
+                })
+            } else {
+                res.status(202)
             }
         })
     } else {
