@@ -1,21 +1,20 @@
 <%- include('blocks/head.ejs', {title: 'Создать запись'}) %>
-<div class="container text-center">
+<div class="container center">
     <h1>Создать запись</h1>
 </div>
 <hr>
 <div class="container">
     <form action="/create-note" method="post">
-        <div class="form-group">
+        <div class="input-field">
+            <input id='heading-input' type="text" name="heading" autocomplete="off" required>
             <label for="heading-input">Название</label>
-            <input id='heading-input' type="text" class="form-control" name="heading"
-                   required>
         </div>
-        <div class="form-group">
-            <label for="text-input">Текст</label><br>
-            <textarea class="form-control" id="text-input" name="text" cols="30" rows="10"
-                      required></textarea>
+        <div class="input-field">
+            <textarea class="materialize-textarea" id="text-input" name="text" required></textarea>
+            <label for="text-input">Текст</label>
         </div>
-        <input type="submit" value="Создать" class="btn btn-outline-primary">
+        <input type="submit" value="Создать" class="waves-effect waves-light btn">
+        <a href="/" class="btn waves-effect waves-light">Отмена</a>
     </form>
 </div>
 <%- include('blocks/footer.ejs') %>

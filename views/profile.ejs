@@ -1,32 +1,38 @@
 <%- include('blocks/head.ejs', {title: 'your profile on express notes'}) %>
-<div class="container text-center">
-    <h1>Профиль пользователя <%= login %></h1>
+<div class="container center">
+    <h2>Профиль пользователя <%= login %></h2>
 </div>
 <hr>
-<div class="container">
-    <div class="row">
-        <div class="col-md">
-            <h4>
-                Ваши записи:
-            </h4>
-            <% if (are_notes) { %>
-                <ul>
-                    <% notes.forEach((note) => { %>
-                        <li>
-                            <h4>
-                                <a href="/note/<%= note.id %>">
-                                    <%= note.heading %>
-                                </a>
-                            </h4>
-                        </li>
-                    <% }) %>
-                </ul>
-            <% } else { %>
-                <h4>У вас ещё нет записей</h4>
-            <% } %>
-            <a href="/create-note">Создать запись</a><br>
-            <a href="/logout">Выйти</a>
+<div class="container center">
+    <h4>
+        Ваши записи:
+    </h4>
+    <% if (are_notes === true) { %>
+        <ul>
+            <% notes.forEach((note) => { %>
+                <li>
+                    <h4>
+                        <a href="/note/<%= note.id %>">
+                            <%= note.heading %>
+                        </a>
+                    </h4>
+                </li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <h4>У вас ещё нет записей</h4>
+    <% } %>
+    <h5>
+        <div class="row">
+            <div class="col s12 m6">
+                <br>
+                <a href="/create-note" class="waves-effect waves-light btn">Создать запись</a><br>
+            </div>
+            <div class="col s12 m6">
+                <br>
+                <a href="/logout" class="waves-effect waves-light btn">Выйти</a>
+            </div>
         </div>
-    </div>
+    </h5>
 </div>
 <%- include('blocks/footer.ejs') %>

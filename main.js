@@ -62,7 +62,7 @@ app.post('/reg', ((req, res) => {
 app.get('/logout', ((req, res) => {
     req.session.logged = false
     req.session.login = ''
-    res.redirect('/')
+    res.render('msg', {msg: "Вы успешно вышли."})
 }))
 
 /* Профиль */
@@ -74,8 +74,8 @@ app.get('/profile', ((req, res) => {
             }
             let notes_arr
             let are_notes
-            if (data) {
-                if (data[0]) {
+            if (data !== []) {
+                if (data[0] !== undefined) {
                     are_notes = true
                     notes_arr = data
                 } else {

@@ -23,7 +23,6 @@ module.exports.log = (req, res) => {
             // Над шифрованием пароля ещё работаю
             if (data.pass === req.body.password) {
                 req.session.logged = true
-                console.log(`login is ${req.body.login}`)
                 req.session.login = req.body.login
                 res.redirect('/')
             } else {
