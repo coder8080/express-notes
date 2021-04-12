@@ -21,9 +21,7 @@ function convert_to_text(array) {
  * @param {Number} userId - id пользователя, проводящего синхронизацию
  * */
 module.exports.upload = function upload(notes, userId) {
-    console.log(notes)
     notes.forEach((item) => {
-        console.log(item)
         db.get(`select text from notes where heading = '${item.heading}' and userId = ${userId};`, (err, data) => {
             if (err) {
                 throw err
@@ -74,7 +72,6 @@ module.exports.send_not_synced = function (notes, userId, res) {
             }
         }
         const text_notes = convert_to_text(response_notes)
-        console.log("asdfkjasdklfj", text_notes)
         res.end(text_notes)
     })
 }

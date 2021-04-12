@@ -269,7 +269,6 @@ app.post('/sync', (req, res) => {
     const password = req.body.password
     const notes_text = req.body.notes
     const type = req.body.type
-    console.log(type)
     db.get(`select id, pass from users where login = '${login}';`, (err, data) => {
         if (err) {
             console.log('error when getting password from db')
@@ -283,7 +282,6 @@ app.post('/sync', (req, res) => {
                     notes = []
                 }
                 notes.forEach((item, index) => {
-                    console.log(item)
                     notes[index] = JSON.parse(item)
                 })
                 if (type === 'upload') {
@@ -307,12 +305,10 @@ app.post('/sync', (req, res) => {
                     sync_operations.hard_download(id, res)
                 }
             } else {
-                console.log('incorrect password')
                 res.status(201)
                 res.end()
             }
         } else {
-            console.log('no user with this password')
             res.status(202)
             res.end()
         }
