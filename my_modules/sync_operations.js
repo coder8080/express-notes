@@ -1,0 +1,119 @@
+const sqlite = require('sqlite3')
+const db = new sqlite.Database('db.sqlite3')
+
+/**
+ * Функция, конвертирующая массив json объектов в текст
+ * @param {Array} array - массив, который необходимо конвертировать
+ * @returns {String} - результат конвертации
+ * */
+function convert_to_text(array) {
+    let text
+    for (let i = 0; i < array.length; i++) {
+        array[i] = JSON.stringify(array[i])
+    }
+    text = array.join(';')
+    return text
+}
+
+/**
+ * Функция загрузки записей, не сохранённых на сервере
+ * @param {Array} notes - список полученных от приложения записей
+ * @param {Number} userId - id пользователя, проводящего синхронизацию
+ * */
+module.exports.upload = function upload(notes, userId) {
+    console.log(notes)
+    notes.forEach((item) => {
+        console.log(item)
+        db.get(`select text from notes where heading = '${item.heading}' and userId = ${userId};`, (err, data) => {
+            if (err) {
+                throw err
+            }
+            if (!data) {
+                db.run(`insert into notes (heading, text, userId) values ('${item.heading}', '${item.text}', ${userId});`, (err) => {
+                    if (err) {
+                        console.log('cant create new note in db')
+                        throw err
+                    }
+                })
+            } else {
+                if (data.text !== item.text) {
+                    db.run(`update table people set text = '${item.text}' where heading = '${item.heading}' and userId = ${userId};`, (err) => {
+                        if (err) {
+                            console.log('error when updating info in db')
+                            throw err
+                        }
+                    })
+                }
+            }
+        })
+    })
+}
+
+/**
+ * Функция отправки записей, не сохранённых локально
+ * @param {Array} notes - записи, полученные от приложения
+ * @param {Number} userId - id пользователя, проводящего синхронизацию
+ * @param {Object} res - объект ответа express
+ * */
+module.exports.send_not_synced = function (notes, userId, res) {
+    let response_notes = []
+    db.all(`select heading, text from notes where userId = ${userId};`, (err, data) => {
+        if (err) {
+            throw err
+        }
+        for (const server_note of data) {
+            let founded = false
+            for (const local_note of notes) {
+                if (local_note.heading === server_note.heading) {
+                    founded = true
+                    break
+                }
+            }
+            if (!founded) {
+                response_notes.push(server_note)
+            }
+        }
+        const text_notes = convert_to_text(response_notes)
+        console.log("asdfkjasdklfj", text_notes)
+        res.end(text_notes)
+    })
+}
+
+/**
+ * Полная синхронизация с локальными записями
+ * @param {Array} notes - полученные записи
+ * @param {Number} userId - id пользователя, проводящего синхронизацию
+ * */
+module.exports.hard_upload = function (notes, userId) {
+    db.run(`delete from notes where userId = ${userId};`, (err) => {
+        if (err) {
+            console.log('error when removing info from db')
+            throw err
+        }
+        for (const note of notes) {
+            db.run(`insert into notes (heading, text, userId) values ('${note.heading}', '${note.text}', ${userId});`, (err) => {
+                if (err) {
+                    console.log('error when inserting info in db')
+                    throw err
+                }
+            })
+        }
+    })
+}
+
+/**
+ * Функция отправки всех записей с сервера
+ * @param {Number} userId - id пользователя, проводящего синхронизацию
+ * @param {Object} res - объект ответа express
+ * */
+module.exports.hard_download = function (userId, res) {
+    db.all(`select heading, text from notes where userId = ${userId};`, (err, data) => {
+        if (err) {
+            console.log('error when getting info from db')
+            throw err
+        }
+        const text_notes = convert_to_text(data)
+        res.write(text_notes)
+        res.end()
+    })
+}

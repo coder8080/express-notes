@@ -5,7 +5,8 @@ const express = require('express')
 const express_session = require('express-session')
 const bodyParser = require('body-parser')
 const sqlite = require('sqlite3')
-const operations = require('./my_modules/user_operations')
+const user_operations = require('./my_modules/user_operations')
+const sync_operations = require('./my_modules/sync_operations')
 
 // Создание переменных
 const app = express()
@@ -41,7 +42,7 @@ app.get('/login', ((req, res) => {
 
 /* Вход */
 app.post('/login', ((req, res) => {
-    operations.log(req, res)
+    user_operations.log(req, res)
 }))
 
 /* Страница регистрации */
@@ -55,7 +56,7 @@ app.get('/reg', ((req, res) => {
 
 /* Регистрация */
 app.post('/reg', ((req, res) => {
-    operations.reg(req, res)
+    user_operations.reg(req, res)
 }))
 
 /* Выход */
@@ -261,6 +262,61 @@ app.post('/drop-note', (req, res) => {
     } else {
         res.redirect('/login')
     }
+})
+
+app.post('/sync', (req, res) => {
+    const login = req.body.login
+    const password = req.body.password
+    const notes_text = req.body.notes
+    const type = req.body.type
+    console.log(type)
+    db.get(`select id, pass from users where login = '${login}';`, (err, data) => {
+        if (err) {
+            console.log('error when getting password from db')
+            throw err
+        }
+        const id = data.id
+        if (data) {
+            if (data.pass === password) {
+                let notes = notes_text.split(';')
+                if (notes[0] === '') {
+                    notes = []
+                }
+                notes.forEach((item, index) => {
+                    console.log(item)
+                    notes[index] = JSON.parse(item)
+                })
+                if (type === 'upload') {
+                    sync_operations.upload(notes, id)
+                    res.status(200)
+                    res.end()
+                }
+                else if (type === 'upload-and-download') {
+                    sync_operations.upload(notes, id)
+                    sync_operations.send_not_synced(notes, id, res)
+                }
+                else if (type === 'download') {
+                    sync_operations.send_not_synced(notes, id, res)
+                }
+                else if (type === 'hard-upload') {
+                    sync_operations.hard_upload(notes, id)
+                    res.status(200)
+                    res.end()
+                }
+                else if (type === 'hard-download') {
+                    sync_operations.hard_download(id, res)
+                }
+            } else {
+                console.log('incorrect password')
+                res.status(201)
+                res.end()
+            }
+        } else {
+            console.log('no user with this password')
+            res.status(202)
+            res.end()
+        }
+    })
 })
 
 app.listen(3000, () => {
