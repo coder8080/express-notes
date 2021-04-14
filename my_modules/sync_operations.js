@@ -2,17 +2,15 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('db.sqlite3')
 
 /**
- * Функция, конвертирующая массив json объектов в текст
- * @param {Array} array - массив, который необходимо конвертировать
- * @returns {String} - результат конвертации
+ * Конвертация массива json элементов в текст
+ * @param {Array} array - массив, который нужно конвертировать
+ * @return {String} - полученный текст
  * */
-function convert_to_text(array) {
-    let text
-    for (let i = 0; i < array.length; i++) {
-        array[i] = JSON.stringify(array[i])
-    }
-    text = array.join(';')
-    return text
+function array_to_text(array) {
+    array.forEach((item, index) => {
+        array[index] = JSON.stringify(item)
+    })
+    return array.join('%*%')
 }
 
 /**
@@ -21,12 +19,14 @@ function convert_to_text(array) {
  * @param {Number} userId - id пользователя, проводящего синхронизацию
  * */
 module.exports.upload = function upload(notes, userId) {
+    // Для повышения производительности асинхронно обрабатываем полученные записи
     notes.forEach((item) => {
         db.get(`select text from notes where heading = '${item.heading}' and userId = ${userId};`, (err, data) => {
             if (err) {
                 throw err
             }
             if (!data) {
+                // Если у пользователя нет заметки с таким заголовком, создаём её
                 db.run(`insert into notes (heading, text, userId) values ('${item.heading}', '${item.text}', ${userId});`, (err) => {
                     if (err) {
                         console.log('cant create new note in db')
@@ -34,6 +34,7 @@ module.exports.upload = function upload(notes, userId) {
                     }
                 })
             } else {
+                // Если запись есть, но тексты различаются, обновляем текст
                 if (data.text !== item.text) {
                     db.run(`update table people set text = '${item.text}' where heading = '${item.heading}' and userId = ${userId};`, (err) => {
                         if (err) {
@@ -59,6 +60,7 @@ module.exports.send_not_synced = function (notes, userId, res) {
         if (err) {
             throw err
         }
+        // Проверяем, сохранена ли локально каждая запись на сервере
         for (const server_note of data) {
             let founded = false
             for (const local_note of notes) {
@@ -68,10 +70,11 @@ module.exports.send_not_synced = function (notes, userId, res) {
                 }
             }
             if (!founded) {
+                // Если нет, то добавляем её к массиву отправки назад
                 response_notes.push(server_note)
             }
         }
-        const text_notes = convert_to_text(response_notes)
+        const text_notes = array_to_text(response_notes)
         res.end(text_notes)
     })
 }
@@ -109,7 +112,7 @@ module.exports.hard_download = function (userId, res) {
             console.log('error when getting info from db')
             throw err
         }
-        const text_notes = convert_to_text(data)
+        const text_notes = array_to_text(data)
         res.write(text_notes)
         res.end()
     })

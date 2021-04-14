@@ -277,7 +277,7 @@ app.post('/sync', (req, res) => {
         const id = data.id
         if (data) {
             if (data.pass === password) {
-                let notes = notes_text.split(';')
+                let notes = notes_text.split('%*%')
                 if (notes[0] === '') {
                     notes = []
                 }
