@@ -1,0 +1,106 @@
+<%- include('blocks/head.ejs', {title: 'Наше настольное приложение'}) %>
+<style>
+    img {
+        border-radius: 1rem;
+    }
+
+    body {
+        background: url("/public/img/background.jpg") fixed;
+        background-size: cover;
+    }
+
+    .dark {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: whitesmoke;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    ul {
+        color: black;
+    }
+
+    .item {
+        padding-left: 10px;
+    }
+</style>
+<div class="container center">
+    <h2>
+        Настольное приложение
+    </h2>
+</div>
+<hr>
+<div class="container dark">
+    <h5 class="dark">
+        <p class="center">
+            У нас появилось настольное приложение! Вы можете скачать его <a
+                    href="https://github.com/coder8080/electron-notes">отсюда</a>.
+        </p>
+    </h5>
+    <h4 class="valign-wrapper">
+        <i class="small material-icons">
+            category
+        </i>
+        Преимущества:
+    </h4>
+    <ul class="dark">
+        <li class="item">
+            <h5>
+                <i class="tiny material-icons">done</i>
+                Работа без интернета
+            </h5>
+        </li>
+        <li class="item">
+            <h5>
+                <i class="tiny material-icons">done</i>
+                Улучшенный интерфейс
+            </h5>
+        </li>
+        <li class="item">
+            <h5>
+                <i class="tiny material-icons">done</i>
+                Наличие тёмной темы
+            </h5>
+        </li>
+        <li class="item">
+            <h5>
+                <i class="tiny material-icons">done</i>
+                Синхронизация с сайтом в нескольких режимах
+            </h5>
+        </li>
+    </ul>
+    <h4 class="valign-wrapper">
+        <i class="material-icons small">camera</i>
+        Скриншоты
+    </h4>
+    <h5>
+        <i class="tiny material-icons">light_mode</i>
+        Светлая тема
+    </h5>
+    <a href="https://github.com/coder8080/electron-notes">
+        <img src="/public/img/light-theme.png" alt="скриншот приложения в светлой теме"
+             class="responsive-img">
+    </a>
+    <br>
+    <h5>
+        <i class="tiny material-icons">dark_mode</i>
+        Тёмная тема
+    </h5>
+    <a href="https://github.com/coder8080/electron-notes">
+        <img src="/public/img/dark-theme.png" alt="скриншот приложения в тёмной теме"
+             class="responsive-img">
+    </a>
+    <div class="row">
+        <div class="col m6 s12 center">
+            <a href="https://github.com/coder8080/electron-notes" class="btn waves-effect waves-light">Скачать!</a>
+        </div>
+        <div class="col m6 s12 center">
+            <div class="hide-on-med-and-up">
+                <br>
+            </div>
+            <a href="/" class="btn waves-effect waves-light">На главную</a>
+        </div>
+    </div>
+</div>
+<%- include('blocks/footer.ejs') %>

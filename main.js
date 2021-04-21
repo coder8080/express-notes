@@ -264,6 +264,7 @@ app.post('/drop-note', (req, res) => {
     }
 })
 
+/* Синхронизация */
 app.post('/sync', (req, res) => {
     const login = req.body.login
     const password = req.body.password
@@ -276,7 +277,9 @@ app.post('/sync', (req, res) => {
         }
         const id = data.id
         if (data) {
+            // Проверяем, верно ли указан пароль
             if (data.pass === password) {
+                // Преобразовываем полученную строку в массив записей
                 let notes = notes_text.split('%*%')
                 if (notes[0] === '') {
                     notes = []
@@ -284,24 +287,21 @@ app.post('/sync', (req, res) => {
                 notes.forEach((item, index) => {
                     notes[index] = JSON.parse(item)
                 })
+                // В зависимости от выбранного типа выполняем синхронизацию
                 if (type === 'upload') {
                     sync_operations.upload(notes, id)
                     res.status(200)
                     res.end()
-                }
-                else if (type === 'upload-and-download') {
+                } else if (type === 'upload-and-download') {
                     sync_operations.upload(notes, id)
                     sync_operations.send_not_synced(notes, id, res)
-                }
-                else if (type === 'download') {
+                } else if (type === 'download') {
                     sync_operations.send_not_synced(notes, id, res)
-                }
-                else if (type === 'hard-upload') {
+                } else if (type === 'hard-upload') {
                     sync_operations.hard_upload(notes, id)
                     res.status(200)
                     res.end()
-                }
-                else if (type === 'hard-download') {
+                } else if (type === 'hard-download') {
                     sync_operations.hard_download(id, res)
                 }
             } else {
@@ -315,6 +315,11 @@ app.post('/sync', (req, res) => {
     })
 })
 
-app.listen(3000, () => {
+// Страница с презентацией настольного приложения
+app.get('/app', (req, res) => {
+    res.render('app')
+})
+
+app.listen(3000, '192.168.0.14', () => {
     console.log('server started successfully')
 })
