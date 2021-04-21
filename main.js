@@ -320,6 +320,6 @@ app.get('/app', (req, res) => {
     res.render('app')
 })
 
-app.listen(3000, '192.168.0.14', () => {
+app.listen(3000, () => {
     console.log('server started successfully')
 })
