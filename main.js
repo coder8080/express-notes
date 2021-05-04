@@ -268,7 +268,7 @@ app.post('/drop-note', (req, res) => {
 app.post('/sync', (req, res) => {
     const login = req.body.login
     const password = req.body.password
-    const notes_text = req.body.notes
+    let notes = req.body.notes
     const type = req.body.type
     db.get(`select id, pass from users where login = '${login}';`, (err, data) => {
         if (err) {
@@ -279,14 +279,6 @@ app.post('/sync', (req, res) => {
         if (data) {
             // Проверяем, верно ли указан пароль
             if (data.pass === password) {
-                // Преобразовываем полученную строку в массив записей
-                let notes = notes_text.split('%*%')
-                if (notes[0] === '') {
-                    notes = []
-                }
-                notes.forEach((item, index) => {
-                    notes[index] = JSON.parse(item)
-                })
                 // В зависимости от выбранного типа выполняем синхронизацию
                 if (type === 'upload') {
                     sync_operations.upload(notes, id)

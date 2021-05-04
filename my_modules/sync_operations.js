@@ -2,18 +2,6 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('db.sqlite3')
 
 /**
- * Конвертация массива json элементов в текст
- * @param {Array} array - массив, который нужно конвертировать
- * @return {String} - полученный текст
- * */
-function array_to_text(array) {
-    array.forEach((item, index) => {
-        array[index] = JSON.stringify(item)
-    })
-    return array.join('%*%')
-}
-
-/**
  * Функция загрузки записей, не сохранённых на сервере
  * @param {Array} notes - список полученных от приложения записей
  * @param {Number} userId - id пользователя, проводящего синхронизацию
@@ -74,7 +62,7 @@ module.exports.send_not_synced = function (notes, userId, res) {
                 response_notes.push(server_note)
             }
         }
-        const text_notes = array_to_text(response_notes)
+        const text_notes = JSON.stringify({"notes": response_notes})
         res.end(text_notes)
     })
 }
@@ -112,8 +100,7 @@ module.exports.hard_download = function (userId, res) {
             console.log('error when getting info from db')
             throw err
         }
-        const text_notes = array_to_text(data)
-        res.write(text_notes)
-        res.end()
+        const text_notes = JSON.stringify({"notes": data})
+        res.end(text_notes)
     })
 }
