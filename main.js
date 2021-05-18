@@ -20,6 +20,22 @@ app.use('/public', express.static('public'))
 app.use(bodyParser.json())
 app.use(urlEncodedParser)
 
+/*Функции*/
+
+/** Стандартная функция sql escape
+ * @param {String} text - текст, в котором нужно проставить \
+ * @return {String} отредактированный текст*/
+function sql_escape(text) {
+    text = text.replaceAll(`'`, `&quot`)
+    return text
+}
+
+/** Антоним функции sql_escape*/
+function rm_escape(text) {
+    text = text.replaceAll(`&quot`, `'`)
+    return text
+}
+
 // Отслеживание url адресов
 
 /* Главная страница */
@@ -108,6 +124,8 @@ app.get('/note/:id', ((req, res) => {
                     // Получаем запись и отправляем её пользователю
                     db.get(`select * from notes where notes.id = '${req.params.id}';`, (err, data) => {
                         if (data) {
+                            data.heading = rm_escape(data.heading)
+                            data.text = rm_escape(data.text)
                             res.render('note', {note: data})
                         } else {
                             // Если запись вдруг исчезла, выдаём ошибку
@@ -140,6 +158,8 @@ app.get('/change-note/:id', ((req, res) => {
                     // Получаем запись и отправляем её пользователю
                     db.get(`select * from notes where notes.id = '${req.params.id}';`, (err, data) => {
                         if (data) {
+                            data.text = rm_escape(data.text)
+                            data.heading = rm_escape(data.heading)
                             res.render('change-note', {note: data})
                         } else {
                             // Если запись вдруг исчезла, выдаём ошибку
@@ -160,6 +180,8 @@ app.get('/change-note/:id', ((req, res) => {
 
 /* Изменение записи */
 app.post('/change-note/:id', (req, res) => {
+    req.body.text = sql_escape(req.body.text)
+    req.body.heading = sql_escape(req.body.heading)
     if (req.session.logged) {
         // Получаем логин пользователя, которому принадлежит запись
         db.get(`select users.login from notes inner join users on notes.userId = users.id where notes.id = '${req.params.id}';`, (err, data) => {
@@ -189,9 +211,9 @@ app.post('/change-note/:id', (req, res) => {
                                     if (err) {
                                         throw err
                                     }
+                                    res.redirect(`/note/${req.params.id}`)
                                 })
                             }
-                            res.redirect(`/note/${req.params.id}`)
                         } else {
                             // Если запись вдруг исчезла, выдаём ошибку
                             res.render('msg', {msg: 'Ошибка'})
@@ -220,6 +242,8 @@ app.get('/create-note', ((req, res) => {
 
 /* Создание записи */
 app.post('/create-note', (req, res) => {
+    req.body.heading = sql_escape(req.body.heading)
+    req.body.text = sql_escape(req.body.text)
     if (req.session.logged) {
         db.get(`select id from users where login = '${req.session.login}';`, (err, data) => {
             if (err) {
